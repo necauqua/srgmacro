@@ -1,0 +1,62 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'maven'
+    id 'com.gradle.plugin-publish' version '0.12.0'
+}
+
+group = 'dev.necauqua'
+version = '1.0.0'
+
+task publish {
+    doLast {
+        if (publish.dependsOn.isEmpty()) {
+            throw new IllegalStateException('No configuration for publishing to gradle nor to the maven repo')
+        }
+    }
+}
+
+if (['gradle.publish.key', 'gradle.publish.secret'].every { project.hasProperty(it) }) {
+    pluginBundle {
+        website = 'https://github.com/necauqua/srgmacro#readme'
+        vcsUrl = 'https://github.com/necauqua/srgmacro.git'
+        tags = ['minecraft', 'forge', 'mcp', 'srg', 'modding', 'obfuscation']
+    }
+    gradlePlugin {
+        plugins {
+            srgmacro {
+                id = 'dev.necauqua.srgmacro'
+                displayName = 'SRG macro'
+                description = 'Replaces code that looks like srg("some MCP name") with a string literal containing the appropriate SRG name for that item'
+                implementationClass = 'dev.necauqua.srgmacro.SrgMacroPlugin'
+            }
+        }
+    }
+    publish.dependsOn += publishPlugins
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://files.minecraftforge.net/maven' }
+}
+
+configurations {
+    deployer
+}
+
+dependencies {
+    implementation 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    deployer 'org.apache.maven.wagon:wagon-ssh-external:3.4.0'
+}
+
+if (['repo.url', 'repo.username', 'repo.sk'].every { project.hasProperty(it) }) {
+    uploadArchives {
+        repositories.mavenDeployer {
+            configuration = configurations.deployer
+            repository(url: project['repo.url']) {
+                authentication(userName: project['repo.username'], privateKey: project['repo.sk'])
+            }
+        }
+    }
+    publish.dependsOn += uploadArchives
+}
