@@ -17,7 +17,7 @@ name a lot, such as when making coremods.
 You can add it to your `build.gradle` like so:
 ```groovy
 plugins {
-    id 'dev.necauqua.srgmacro' version '1.0.0'
+    id 'dev.necauqua.srgmacro' version '2.0.0'
 }
 ```
 Or, if you're into legacy systems, like so:
@@ -27,7 +27,7 @@ buildscript {
         maven { url = 'https://maven.necauqua.dev' }
     }
     dependencies {
-        classpath 'dev.necauqua:srgmacro:1.0.0'
+        classpath 'dev.necauqua:srgmacro:2.0.0'
     }
 }
 
@@ -45,7 +45,7 @@ My preferred way to have this method is as follows:
 ```java
 public static String srg(String mcpName) {
     // allow it to run without preprocessing from Intellij IDEA
-    // (or use some other hack for your IDE)
+    // (or use some other hack or like an env variable for your IDE)
     if (System.getProperty("java.class.path").contains("idea_rt.jar")) {
         return mcpName;
     }
